@@ -8,6 +8,7 @@ var MongoClient = require('mongodb').MongoClient;
 const wss = new WebSocket.Server({ port: 3003 });
 // สร้าง websockets server ที่ port 4000
 wss.on('connection', function connection(ws) { // สร้าง connection
+  console.log("Aruba Websocket Established");
   ws.on('message', function incoming(message) {
 
     // รอรับ data อะไรก็ตาม ที่มาจาก client แบบตลอดเวลา
@@ -19,7 +20,7 @@ wss.on('connection', function connection(ws) { // สร้าง connection
     //console.log(myobj);
 
     if (obj["reported"] == null) {
-      console.log("Aruba Websocket Established");
+      console.log("AP not reported ");
     } else {
       console.log(myobj);
       console.log(obj["reporter"]["name"]);
@@ -60,10 +61,10 @@ async function beacon(report) {
   }
 }
 
-function add_sensors(location, sensor) {
+async function add_sensors(location, sensor) {
+  await beacon(sensor);
   let count = 0;
   for (k of sensor) {
-    console.log("===================================");
     if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
       let data = {
         mac: sensor[count]['mac'],
@@ -74,8 +75,17 @@ function add_sensors(location, sensor) {
         minor: sensor[count]["beacons"][0]['ibeacon']['minor'],
         location: location
       };
-      add_db(data);
+      await add_db(data);
 
+    } else if (sensor[count]["deviceClass"] == 'arubaTag' && sensor[count]['rssi'] != null) {
+      let data = {
+        mac: sensor[count]['mac'],
+        deviceClass: 'eddystone',
+        rssi: sensor[count]['rssi']['max'],
+        timeStamp: new Date().toISOString(),
+        location: location
+      };
+      await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'eddystone' && sensor[count]['rssi'] != null) {
       let data = {
         mac: sensor[count]['mac'],
@@ -85,7 +95,7 @@ function add_sensors(location, sensor) {
         location: location,
         dynamicValue: sensor[count]['sensors']['temperatureC']
       };
-      add_db(data);
+      await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
       let data = {
         mac: sensor[count]['mac'],
@@ -95,7 +105,7 @@ function add_sensors(location, sensor) {
         location: location,
         dynamicValue: sensor[count]['stats']['frame_cnt']
       };
-      add_db(data);
+      await add_db(data);
     }
     count += 1;
   }
@@ -108,7 +118,6 @@ async function add_db(data) {
     const db = client.db("BLE");
     console.log(data);
     const result = await db.collection("signal").insertOne(data);
-    console.log("1 document inserted");
     client.close();
     return result;
   } catch (err) {
@@ -116,7 +125,6 @@ async function add_db(data) {
     throw err;
   }
 }
-
 /*
 console.log(obj.reported[count]["deviceClass"]);
     console.log("===================================");
