@@ -133,7 +133,7 @@ async function add_db(data) {
   try {
     const db = client.db("BLE");
     console.log(data);
-    const result = await db.collection("signal").insertOne(data);
+    const result = await db.collection(data.deviceClass).insertOne(data);
     return result;
   } catch (err) {
     console.error("Error inserting document:", err);
