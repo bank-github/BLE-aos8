@@ -6,7 +6,22 @@ var MongoClient = require('mongodb').MongoClient;
 
 // connect to mongodb
 const url = "mongodb://localhost:27017/";
-const client = await MongoClient.connect(url);
+
+// Create a new MongoClient
+const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
+
+// Connect to the MongoDB server
+async function connectToMongo() {
+    try {
+        await client.connect();
+        console.log('Connected to MongoDB');
+    } catch (err) {
+        console.error('Error connecting to MongoDB:', err);
+    }
+}
+
+// Call the function to connect
+connectToMongo();
 
 const wss = new WebSocket.Server({ port: 3003 });
 // สร้าง websockets server ที่ port 4000
