@@ -100,7 +100,7 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'arubaTag',
-        rssi: sensor[count]['rssi']['average'],
+        rssi: sensor[count]['rssi']['avg'],
         timeStamp: new Date().toISOString(),
         location: location
       };
@@ -109,18 +109,17 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'eddystone',
-        rssi: sensor[count]['rssi']['average'],
+        rssi: sensor[count]['rssi']['avg'],
         timeStamp: new Date().toISOString(),
         location: location,
         dynamicValue: sensor[count]['sensors']['temperatureC']
       };
       await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
-      console.log("this is data => "+sensor[count]);
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'unclassified',
-        rssi: sensor[count]['rssi']['average'],
+        rssi: sensor[count]['rssi']['avg'],
         timeStamp: new Date().toISOString(),
         location: location,
         dynamicValue: sensor[count]['stats']['frame_cnt']
