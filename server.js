@@ -81,6 +81,7 @@ async function beacon(report) {
 
 async function add_sensors(location, sensor) {
   // await beacon(sensor);
+  console.log(sensor.length);
   let count = 0;
   for (k of sensor) {
     if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
@@ -99,7 +100,7 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'arubaTag',
-        rssi: sensor[count]['rssi']['max'],
+        rssi: sensor[count]['rssi']['average'],
         timeStamp: new Date().toISOString(),
         location: location
       };
@@ -108,18 +109,18 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'eddystone',
-        rssi: sensor[count]['rssi']['max'],
+        rssi: sensor[count]['rssi']['average'],
         timeStamp: new Date().toISOString(),
         location: location,
         dynamicValue: sensor[count]['sensors']['temperatureC']
       };
       await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
-      console.log(sensor[count]);
+      console.log("this is data => "+sensor[count]);
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'unclassified',
-        rssi: sensor[count]['rssi']['max'],
+        rssi: sensor[count]['rssi']['average'],
         timeStamp: new Date().toISOString(),
         location: location,
         dynamicValue: sensor[count]['stats']['frame_cnt']
