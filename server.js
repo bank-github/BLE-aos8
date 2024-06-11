@@ -4,6 +4,9 @@ const protobuf = require('protobufjs');
 const aruba_telemetry_proto = require('./aruba_iot_proto.js').aruba_telemetry;
 var MongoClient = require('mongodb').MongoClient;
 
+// connect to mongodb
+const url = "mongodb://localhost:27017/";
+const client = await MongoClient.connect(url);
 
 const wss = new WebSocket.Server({ port: 3003 });
 // สร้าง websockets server ที่ port 4000
@@ -62,14 +65,14 @@ async function beacon(report) {
 }
 
 async function add_sensors(location, sensor) {
-  await beacon(sensor);
+  // await beacon(sensor);
   let count = 0;
   for (k of sensor) {
     if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'iBeacon',
-        rssi: sensor[count]['rssi']['max'],
+        rssi: sensor[count]["beacons"][0]['ibeacon']['power'],
         timeStamp: new Date().toISOString(),
         major: sensor[count]["beacons"][0]['ibeacon']['major'],
         minor: sensor[count]["beacons"][0]['ibeacon']['minor'],
@@ -80,7 +83,7 @@ async function add_sensors(location, sensor) {
     } else if (sensor[count]["deviceClass"] == 'arubaTag' && sensor[count]['rssi'] != null) {
       let data = {
         mac: sensor[count]['mac'],
-        deviceClass: 'eddystone',
+        deviceClass: 'arubaTag',
         rssi: sensor[count]['rssi']['max'],
         timeStamp: new Date().toISOString(),
         location: location
@@ -113,12 +116,9 @@ async function add_sensors(location, sensor) {
 
 async function add_db(data) {
   try {
-    const url = "mongodb://localhost:27017/";
-    const client = await MongoClient.connect(url);
     const db = client.db("BLE");
     console.log(data);
     const result = await db.collection("signal").insertOne(data);
-    client.close();
     return result;
   } catch (err) {
     console.error("Error inserting document:", err);
