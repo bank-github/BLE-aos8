@@ -115,6 +115,7 @@ async function add_sensors(location, sensor) {
       };
       await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
+      console.log(sensor[count]);
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'unclassified',
