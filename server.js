@@ -88,7 +88,7 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'iBeacon',
-        rssi: sensor[count]["beacons"][0]['ibeacon']['power'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
         major: sensor[count]["beacons"][0]['ibeacon']['major'],
         minor: sensor[count]["beacons"][0]['ibeacon']['minor'],
@@ -100,7 +100,7 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'arubaTag',
-        rssi: sensor[count]['rssi']['avg'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location
       };
@@ -109,7 +109,7 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'eddystone',
-        rssi: sensor[count]['rssi']['avg'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
         dynamicValue: sensor[count]['sensors']['temperatureC']
@@ -119,7 +119,7 @@ async function add_sensors(location, sensor) {
       let data = {
         mac: sensor[count]['mac'],
         deviceClass: 'unclassified',
-        rssi: sensor[count]['rssi']['avg'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
         dynamicValue: sensor[count]['stats']['frame_cnt']
