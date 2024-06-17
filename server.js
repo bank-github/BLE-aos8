@@ -5,7 +5,7 @@ const aruba_telemetry_proto = require('./aruba_iot_proto.js').aruba_telemetry;
 var MongoClient = require('mongodb').MongoClient;
 
 // connect to mongodb
-const url = "mongodb://localhost:27017/";
+const url = "mongodb://10.1.55.230:27017/";
 
 // Create a new MongoClient
 const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
