@@ -17,7 +17,10 @@ const signalReport = new Schema({
     location :       {type: String, require: true},
     deviceClass :    {type: String, require: true},
     rssi :           {type: [{}], require: true},
-    timeStamp :      {type: Date, require: true}
+    timeStamp :      {type: Date, require: true},
+    major:           {type: String, default: null},
+    minor:           {type: String, default: null},
+    dynamicValue:    {type: String, default: null}
 })
 
 const AccessPoint = mongoose.model("accessPoint", accessPoint, "accessPoint");

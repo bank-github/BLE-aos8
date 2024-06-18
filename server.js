@@ -5,8 +5,7 @@ const aruba_telemetry_proto = require('./aruba_iot_proto.js').aruba_telemetry;
 const connectDB = require('./mongoConnect.js');
 const { AccessPoint, Tags, SignalReport } = require('./model.js');
 
-
-const seenLocations = new Set();
+var seenLocations;
 connectDB();
 
 const wss = new WebSocket.Server({ port: 3003 });
@@ -16,6 +15,7 @@ wss.on('connection', function connection(ws) { // สร้าง connection
   console.log("Aruba Websocket Established");
   ws.on('message', function incoming(message) {
 
+    seenLocations = new Set();
     // รอรับ data อะไรก็ตาม ที่มาจาก client แบบตลอดเวลา
     //console.log('received: %s', message);
     let telemetryReport = aruba_telemetry_proto.Telemetry.decode(message);
@@ -43,14 +43,14 @@ wss.on('connection', function connection(ws) { // สร้าง connection
   ws.send('init message to client');
   // ส่ง data ไปที่ client เชื่อมกับ websocket server นี้
 });
-async function beacon(report) {
-  var c = 0;
-  for (k of report) {
-    c += 1;
-    console.log(c);
-    console.log(k.beacons);
-  }
-}
+// async function beacon(report) {
+//   var c = 0;
+//   for (k of report) {
+//     c += 1;
+//     console.log(c);
+//     console.log(k.beacons);
+//   }
+// }
 
 async function add_sensors(location, sensor) {
   // await beacon(sensor);
@@ -59,7 +59,7 @@ async function add_sensors(location, sensor) {
   for (k of sensor) {
     if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
       let data = {
-        mac: sensor[count]['mac'],
+        tagMac: sensor[count]['mac'],
         deviceClass: 'iBeacon',
         rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
@@ -80,7 +80,7 @@ async function add_sensors(location, sensor) {
       await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'eddystone' && sensor[count]['rssi'] != null) {
       let data = {
-        mac: sensor[count]['mac'],
+        tagMac: sensor[count]['mac'],
         deviceClass: 'eddystone',
         rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
@@ -90,7 +90,7 @@ async function add_sensors(location, sensor) {
       await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
       let data = {
-        mac: sensor[count]['mac'],
+        tagMac: sensor[count]['mac'],
         deviceClass: 'unclassified',
         rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
