@@ -3,8 +3,10 @@ const WebSocket = require('ws');
 const protobuf = require('protobufjs');
 const aruba_telemetry_proto = require('./aruba_iot_proto.js').aruba_telemetry;
 const connectDB = require('./mongoConnect.js');
-const { AccessPoint, Tags, signalReport } = require('./model.js');
+const { AccessPoint, Tags, SignalReport } = require('./model.js');
 
+
+const seenLocations = new Set();
 connectDB();
 
 const wss = new WebSocket.Server({ port: 3003 });
@@ -101,8 +103,22 @@ async function add_sensors(location, sensor) {
   }
 }
 
+// const data = require('./BLE.SignalReport.json');
+// getdata(data);
+// async function getdata(data){
+//  for(dt of data){
+//   const newData = {
+//     tagMac: dt.mac,
+//     diviceClass: dt.deviceClass,
+//     rssi: dt.rssi,
+//     timeStamp: dt.timeStamp,
+//     location: dt.location
+//   }
+//   await add_db(newData);
+//  }
+// }
+
 async function add_db(data) {
-  const seenLocations = new Set();
 
   const location = data.location;
   const tagMac = data.tagMac
@@ -126,7 +142,7 @@ async function add_db(data) {
   }
 
   // Insert the signal report
-  const newSignalReport = new signalReport(data);
+  const newSignalReport = new SignalReport(data);
   await newSignalReport.save();
 }
 

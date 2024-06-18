@@ -7,7 +7,7 @@ const accessPoint = new Schema({
 })
 
 const tags = new Schema({
-    mac:             {type: String, require: true},
+    tagMac:          {type: String, require: true},
     assetName:       {type: String,default: "unknow"},
 })
 
@@ -16,7 +16,7 @@ const signalReport = new Schema({
     tagMac :         {type: String, require: true},
     location :       {type: String, require: true},
     deviceClass :    {type: String, require: true},
-    rssi :           {type: [String], require: true},
+    rssi :           {type: [{}], require: true},
     timeStamp :      {type: Date, require: true}
 })
 
