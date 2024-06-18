@@ -53,6 +53,7 @@
     "google-protobuf": "^3.19.1",
     "https": "^1.0.0",
     "mongodb": "^6.5.0",
+    "mongoose": "^8.4.3",
     "mysql": "^2.18.1",
     "protobufjs": "^6.10.2",
     "socket.io": "^3.0.3",
