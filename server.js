@@ -15,7 +15,6 @@ wss.on('connection', function connection(ws) { // สร้าง connection
   console.log("Aruba Websocket Established");
   ws.on('message', function incoming(message) {
 
-    seenLocations = new Set();
     // รอรับ data อะไรก็ตาม ที่มาจาก client แบบตลอดเวลา
     //console.log('received: %s', message);
     let telemetryReport = aruba_telemetry_proto.Telemetry.decode(message);
@@ -27,8 +26,8 @@ wss.on('connection', function connection(ws) { // สร้าง connection
     if (obj["reported"] == null) {
       console.log("AP not reported ");
     } else {
-      console.log(myobj);
-      console.log(obj["reporter"]["name"]);
+      // console.log(myobj);
+      console.log(obj["reporter"]["name"] + ": " + obj.reported.length);
       //console.log(obj["reporter"]["ipv4"]);
       // console.log(obj["reported"]);
       // console.log(obj.reported);
@@ -54,10 +53,10 @@ wss.on('connection', function connection(ws) { // สร้าง connection
 
 async function add_sensors(location, sensor) {
   // await beacon(sensor);
-  console.log(sensor.length);
-  console.log(seenLocations);
+  seenLocations = new Set();
   let count = 0;
   for (k of sensor) {
+  console.log(seenLocations);
     if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
       let data = {
         tagMac: sensor[count]['mac'],
@@ -103,6 +102,7 @@ async function add_sensors(location, sensor) {
     }
     count += 1;
   }
+  seenLocations.clear();
 }
 
 // const data = require('./BLE.SignalReport.json');
@@ -139,6 +139,7 @@ async function add_db(data) {
   if (!seenLocations.has(tagMac)) {
     await Tags.findOneAndUpdate(
       { tagMac: tagMac,  },
+      {$set : {battery : battery}},
       { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass, battery: battery } },
       { upsert: true, new: true }
     );
