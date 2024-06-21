@@ -2,12 +2,15 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const accessPoint = new Schema({
-    location:        {type: String, require: true}
+    location:        {type: String, require: true},
+    description:     {type: String, default: "-"}
 })
 
 const tags = new Schema({
     tagMac:          {type: String, require: true},
-    assetName:       {type: String,default: "unknow"},
+    assetName:       {type: String, default: "unknow"},
+    diviceClass:     {type: String, require: true},
+    description:     {type: String, default: "-"}
 })
 
 //for arubaTags only

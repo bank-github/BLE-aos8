@@ -27,7 +27,7 @@ wss.on('connection', function connection(ws) { // สร้าง connection
     if (obj["reported"] == null) {
       console.log("AP not reported ");
     } else {
-      console.log(myobj);
+      // console.log(myobj);
       console.log(obj["reporter"]["name"]);
       //console.log(obj["reporter"]["ipv4"]);
       console.log(obj["reported"]);
@@ -75,7 +75,8 @@ async function add_sensors(location, sensor) {
         deviceClass: 'arubaTag',
         rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
-        location: location
+        location: location,
+        battery: sensor[count]['sensors']['battery']
       };
       await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'eddystone' && sensor[count]['rssi'] != null) {
@@ -135,7 +136,7 @@ async function add_db(data) {
   if (!seenLocations.has(tagMac)) {
     await Tags.findOneAndUpdate(
       { tagMac: tagMac },
-      { $setOnInsert: { tagMac: tagMac } },
+      { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass } },
       { upsert: true, new: true }
     );
     seenLocations.add(tagMac); // Mark this location as seen
