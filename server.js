@@ -27,11 +27,11 @@ wss.on('connection', function connection(ws) { // สร้าง connection
     if (obj["reported"] == null) {
       console.log("AP not reported ");
     } else {
-      // console.log(myobj);
+      console.log(myobj);
       console.log(obj["reporter"]["name"]);
       //console.log(obj["reporter"]["ipv4"]);
-      console.log(obj["reported"]);
-      //console.log(obj.reported);
+      // console.log(obj["reported"]);
+      // console.log(obj.reported);
       add_sensors(obj["reporter"]["name"], obj.reported);
     }
     //console.log(telemetryReport.body);
@@ -55,6 +55,7 @@ wss.on('connection', function connection(ws) { // สร้าง connection
 async function add_sensors(location, sensor) {
   // await beacon(sensor);
   console.log(sensor.length);
+  console.log(seenLocations);
   let count = 0;
   for (k of sensor) {
     if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
@@ -137,7 +138,7 @@ async function add_db(data) {
   }
   if (!seenLocations.has(tagMac)) {
     await Tags.findOneAndUpdate(
-      { tagMac: tagMac },
+      { tagMac: tagMac,  },
       { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass, battery: battery } },
       { upsert: true, new: true }
     );
