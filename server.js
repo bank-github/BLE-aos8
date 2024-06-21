@@ -56,7 +56,7 @@ async function add_sensors(location, sensor) {
   seenLocations = new Set();
   let count = 0;
   for (k of sensor) {
-  // console.log(seenLocations);
+    // console.log(seenLocations);
     if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
       let data = {
         tagMac: sensor[count]['mac'],
@@ -138,11 +138,13 @@ async function add_db(data) {
     seenLocations.add(location); // Mark this location as seen
   }
   if (!seenLocations.has(tagMac)) {
-    console.log("update Tag: "+tagMac)
+    console.log("update Tag: " + tagMac)
     await Tags.findOneAndUpdate(
       { tagMac: tagMac },
-      { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass } },
-      { $set : {battery : battery}},
+      {
+        $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass },
+        $set: { battery: battery }
+      },
       { upsert: true, new: true }
     );
     seenLocations.add(tagMac); // Mark this location as seen
