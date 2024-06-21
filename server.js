@@ -121,7 +121,7 @@ async function add_sensors(location, sensor) {
 // }
 
 async function add_db(data) {
-  console.log("add: "+ data.tagMac)
+  // console.log("add: "+ data.tagMac)
   const location = data.location;
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
@@ -140,7 +140,7 @@ async function add_db(data) {
   if (!seenLocations.has(tagMac)) {
     // console.log("update Tag: "+tagMac)
     await Tags.findOneAndUpdate(
-      { tagMac: tagMac,  },
+      { tagMac: tagMac },
       {$set : {battery : battery}},
       { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass, battery: battery } },
       { upsert: true, new: true }
