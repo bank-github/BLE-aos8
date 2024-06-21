@@ -121,7 +121,7 @@ async function add_sensors(location, sensor) {
 // }
 
 async function add_db(data) {
-
+  console.log("add: "+ data.tagMac)
   const location = data.location;
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
@@ -129,6 +129,7 @@ async function add_db(data) {
 
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
+    console.log("update AP: "+location)
     await AccessPoint.findOneAndUpdate(
       { location: location },
       { $setOnInsert: { location: location } },
@@ -137,6 +138,7 @@ async function add_db(data) {
     seenLocations.add(location); // Mark this location as seen
   }
   if (!seenLocations.has(tagMac)) {
+    console.log("update Tag: "+tagMac)
     await Tags.findOneAndUpdate(
       { tagMac: tagMac,  },
       {$set : {battery : battery}},
