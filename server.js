@@ -138,26 +138,15 @@ async function add_db(data) {
     seenLocations.add(location); // Mark this location as seen
   }
   if (!seenLocations.has(tagMac)) {
-    console.log("update Tag: " + tagMac);
-    try {
-      const result = await Tags.findOneAndUpdate(
-        { tagMac: tagMac },
-        { 
-          $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass },
-          $set: { battery: battery } // Update battery field if document exists
-        },
-        { 
-          upsert: true, // Create new document if tagMac does not exist
-          new: true // Return updated document
-        }
-      );
-      seenLocations.add(tagMac); // Mark this tagMac as seen
-      console.log("Updated or Inserted Tag:", result);
-    } catch (error) {
-      console.error("Error updating or inserting Tag:", error);
-    }
+    console.log("update Tag: "+tagMac)
+    await Tags.findOneAndUpdate(
+      { tagMac: tagMac },
+      { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass } },
+      { $set : {battery : battery}},
+      { upsert: true, new: true }
+    );
+    seenLocations.add(tagMac); // Mark this location as seen
   }
-  
 
   // Insert the signal report
   const newSignalReport = new SignalReport(data);
