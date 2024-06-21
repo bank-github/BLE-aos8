@@ -124,6 +124,7 @@ async function add_db(data) {
   const location = data.location;
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
+  const battery = data.battery;
 
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
@@ -137,7 +138,7 @@ async function add_db(data) {
   if (!seenLocations.has(tagMac)) {
     await Tags.findOneAndUpdate(
       { tagMac: tagMac },
-      { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass } },
+      { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass, battery: battery } },
       { upsert: true, new: true }
     );
     seenLocations.add(tagMac); // Mark this location as seen

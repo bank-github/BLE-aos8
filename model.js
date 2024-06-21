@@ -10,7 +10,8 @@ const tags = new Schema({
     tagMac:          {type: String, require: true},
     assetName:       {type: String, default: "unknow"},
     deviceClass:     {type: String, require: true},
-    description:     {type: String, default: "-"}
+    description:     {type: String, default: "-"},
+    battery:         {type: String, default: "None"}
 })
 
 //for arubaTags only
