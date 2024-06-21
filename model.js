@@ -22,7 +22,8 @@ const signalReport = new Schema({
     timeStamp :      {type: Date, require: true},
     major:           {type: String, default: null},
     minor:           {type: String, default: null},
-    dynamicValue:    {type: String, default: null}
+    dynamicValue:    {type: String, default: null},
+    battery:         {type: String, default:"-"}
 })
 
 const AccessPoint = mongoose.model("accessPoint", accessPoint, "accessPoint");
