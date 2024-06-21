@@ -141,8 +141,8 @@ async function add_db(data) {
     // console.log("update Tag: "+tagMac)
     await Tags.findOneAndUpdate(
       { tagMac: tagMac },
-      {$set : {battery : battery}},
       { $setOnInsert: { tagMac: tagMac, deviceClass: deviceClass, battery: battery } },
+      {$set : {battery : battery}},
       { upsert: true, new: true }
     );
     seenLocations.add(tagMac); // Mark this location as seen
