@@ -8,10 +8,10 @@ const accessPoint = new Schema({
 
 const tags = new Schema({
     tagMac:          {type: String, require: true},
-    assetName:       {type: String, default: "unknow"},
+    assetName:       {type: String, default: "unknown"},
     deviceClass:     {type: String, require: true},
     description:     {type: String, default: "-"},
-    battery:         {type: String, default: "None"}
+    battery:         {type: String, default: "-"}
 })
 
 //for arubaTags only
