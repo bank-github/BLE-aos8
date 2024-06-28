@@ -34,62 +34,63 @@ wss.on('connection', function connection(ws) { // สร้าง connection
 });
 
 async function add_sensors(location, sensor) {
+  let count = 0;
   for (k of sensor) {
-    if (k["deviceClass"].includes('iBeacon') == true && k["deviceClass"].includes('arubaBeacon') == false && k['rssi'] != null) {
+    if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
       let data = {
-        tagMac: k['mac'],
+        tagMac: sensor[count]['mac'],
         deviceClass: 'iBeacon',
-        rssi: k['rssi']['history'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
-        major: k["beacons"][0]['ibeacon']['major'],
-        minor: k["beacons"][0]['ibeacon']['minor'],
+        major: sensor[count]["beacons"][0]['ibeacon']['major'],
+        minor: sensor[count]["beacons"][0]['ibeacon']['minor'],
         location: location
       };
-      await add_db(location, data);
-    } else if (k["deviceClass"] == 'arubaTag' && k['rssi'] != null) {
+      await add_db(data);
+    } else if (sensor[count]["deviceClass"] == 'arubaTag' && sensor[count]['rssi'] != null) {
       let data = {
-        tagMac: k['mac'],
+        tagMac: sensor[count]['mac'],
         deviceClass: 'arubaTag',
-        rssi: k['rssi']['history'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
-        battery: k['sensors']['battery']
+        battery: sensor[count]['sensors']['battery']
       };
-      await add_db(location, data);
-    } else if (k["deviceClass"] == 'eddystone' && k['rssi'] != null) {
+      await add_db(data);
+    } else if (sensor[count]["deviceClass"] == 'eddystone' && sensor[count]['rssi'] != null) {
       let data = {
-        tagMac: k['mac'],
+        tagMac: sensor[count]['mac'],
         deviceClass: 'eddystone',
-        rssi: k['rssi']['history'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
-        dynamicValue: k['sensors']['temperatureC']
+        dynamicValue: sensor[count]['sensors']['temperatureC']
       };
-      await add_db(location, data);
-    } else if (k["deviceClass"] == 'unclassified' && k['rssi'] != null) {
+      await add_db(data);
+    } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
       let data = {
-        tagMac: k['mac'],
+        tagMac: sensor[count]['mac'],
         deviceClass: 'unclassified',
-        rssi: k['rssi']['history'],
+        rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
-        dynamicValue: k['stats']['frame_cnt']
+        dynamicValue: sensor[count]['stats']['frame_cnt']
       };
-      await add_db(location, data);
+      await add_db(data);
     } else {
+      // Delay here
+      await delay(100);
       await add_ap(location);
-      await delay(50)
     }
+    count += 1;
   }
 }
 
-// สร้างฟังก์ชันหน่วงเวลา
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function add_ap(location) {
-  // Check if location has already been processed
+async function add_ap(location){
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
       { location: location },
@@ -99,7 +100,8 @@ async function add_ap(location) {
     seenLocations.add(location); // Mark this location as seen
   }
 }
-async function add_db(location, data) {
+async function add_db(data) {
+  const location = data.location;
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
   const battery = data.battery || "-";
