@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const accessPoint = new Schema({
-    location:        {type: String, require: true},
+    apName:          {type: String, require: true},
+    location:        {type: String, default: "-"},
     description:     {type: String, default: "-"}
 })
 

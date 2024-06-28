@@ -21,6 +21,7 @@ wss.on('connection', function connection(ws) { // สร้าง connection
       console.log("AP send message but not have reported");
     } else {
       console.log(obj["reporter"]["name"] + ": " + obj.reported.length);
+      add_ap(obj["reporter"]["name"]);
       console.log(obj.reported);
       add_sensors(obj["reporter"]["name"], obj.reported);
     }
@@ -33,6 +34,18 @@ wss.on('connection', function connection(ws) { // สร้าง connection
   ws.send('init message to client');
 });
 
+async function add_ap(apName){
+  // Check if location has already been processed
+  if (!seenLocations.has(location)) {
+    await AccessPoint.findOneAndUpdate(
+      { apName: apName },
+      { $setOnInsert: { apName: apName } },
+      { upsert: true, new: true }
+    );
+    seenLocations.add(location); // Mark this location as seen
+  }
+}
+
 async function add_sensors(location, sensor) {
   let count = 0;
   for (k of sensor) {
@@ -44,7 +57,7 @@ async function add_sensors(location, sensor) {
         timeStamp: new Date().toISOString(),
         major: sensor[count]["beacons"][0]['ibeacon']['major'],
         minor: sensor[count]["beacons"][0]['ibeacon']['minor'],
-        location: location
+        apName: location
       };
       await add_db(data);
     } else if (sensor[count]["deviceClass"] == 'arubaTag' && sensor[count]['rssi'] != null) {
@@ -53,7 +66,7 @@ async function add_sensors(location, sensor) {
         deviceClass: 'arubaTag',
         rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
-        location: location,
+        apName: location,
         battery: sensor[count]['sensors']['battery']
       };
       await add_db(data);
@@ -63,7 +76,7 @@ async function add_sensors(location, sensor) {
         deviceClass: 'eddystone',
         rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
-        location: location,
+        apName: location,
         dynamicValue: sensor[count]['sensors']['temperatureC']
       };
       await add_db(data);
@@ -73,7 +86,7 @@ async function add_sensors(location, sensor) {
         deviceClass: 'unclassified',
         rssi: sensor[count]['rssi']['history'],
         timeStamp: new Date().toISOString(),
-        location: location,
+        apName: location,
         dynamicValue: sensor[count]['stats']['frame_cnt']
       };
       await add_db(data);
@@ -83,20 +96,9 @@ async function add_sensors(location, sensor) {
 }
 
 async function add_db(data) {
-  const location = data.location;
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
   const battery = data.battery || "-";
-
-  // Check if location has already been processed
-  if (!seenLocations.has(location)) {
-    await AccessPoint.findOneAndUpdate(
-      { location: location },
-      { $setOnInsert: { location: location } },
-      { upsert: true, new: true }
-    );
-    seenLocations.add(location); // Mark this location as seen
-  }
 
   // Always update the battery and deviceClass for the tag
   await Tags.findOneAndUpdate(
