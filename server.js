@@ -12,7 +12,7 @@ const wss = new WebSocket.Server({ port: 3003 });
 
 wss.on('connection', function connection(ws) { // สร้าง connection
   console.log("Aruba Websocket Established");
-  ws.on('message', function incoming(message) {
+  ws.on('message',async function incoming(message) {
     let telemetryReport = aruba_telemetry_proto.Telemetry.decode(message);
     let myobj = JSON.stringify(telemetryReport);
     let obj = JSON.parse(myobj);
@@ -21,7 +21,7 @@ wss.on('connection', function connection(ws) { // สร้าง connection
       console.log("AP send message but not have reported");
     } else {
       console.log(obj["reporter"]["name"] + ": " + obj.reported.length);
-      add_ap(obj["reporter"]["name"]);
+      await add_ap(obj["reporter"]["name"]);
       console.log(obj.reported);
       add_sensors(obj["reporter"]["name"], obj.reported);
     }
