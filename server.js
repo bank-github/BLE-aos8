@@ -93,8 +93,8 @@ function delay(ms) {
 async function add_ap(location){
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
-      { location: location },
-      { $setOnInsert: { location: location } },
+      { apName: location },
+      { $setOnInsert: { apName: location } },
       { upsert: true, new: true }
     );
     seenLocations.add(location); // Mark this location as seen
@@ -109,8 +109,8 @@ async function add_db(data) {
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
-      { location: location },
-      { $setOnInsert: { location: location } },
+      { apName: location },
+      { $setOnInsert: { apName: location } },
       { upsert: true, new: true }
     );
     seenLocations.add(location); // Mark this location as seen
