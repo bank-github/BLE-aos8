@@ -86,12 +86,14 @@ async function add_sensors(location, sensor) {
 async function add_ap(apName){
   // Check if location has already been processed
   if (!seenLocations.has(apName)) {
-    await AccessPoint.findOneAndUpdate(
+    var doc = await AccessPoint.findOneAndUpdate(
       { apName: apName },
       { $setOnInsert: { apName: apName } },
       { upsert: true, new: true }
     );
-    seenLocations.add(apName); // Mark this location as seen
+    if(doc){
+      seenLocations.add(apName); // Mark this location as seen
+    }
   }
 }
 
