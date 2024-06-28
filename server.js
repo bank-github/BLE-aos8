@@ -46,7 +46,8 @@ async function add_sensors(location, sensor) {
         minor: sensor[count]["beacons"][0]['ibeacon']['minor'],
         location: location
       };
-      await add_db(location, data);
+      await add_db(data);
+      await add_ap(location);
     } else if (sensor[count]["deviceClass"] == 'arubaTag' && sensor[count]['rssi'] != null) {
       let data = {
         tagMac: sensor[count]['mac'],
@@ -56,7 +57,8 @@ async function add_sensors(location, sensor) {
         location: location,
         battery: sensor[count]['sensors']['battery']
       };
-      await add_db(location, data);
+      await add_db(data);
+      await add_ap(location);
     } else if (sensor[count]["deviceClass"] == 'eddystone' && sensor[count]['rssi'] != null) {
       let data = {
         tagMac: sensor[count]['mac'],
@@ -66,7 +68,8 @@ async function add_sensors(location, sensor) {
         location: location,
         dynamicValue: sensor[count]['sensors']['temperatureC']
       };
-      await add_db(location, data);
+      await add_db(data);
+      await add_ap(location);
     } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
       let data = {
         tagMac: sensor[count]['mac'],
@@ -76,17 +79,15 @@ async function add_sensors(location, sensor) {
         location: location,
         dynamicValue: sensor[count]['stats']['frame_cnt']
       };
-      await add_db(location, data);
+      await add_db(data);
+      await add_ap(location);
+    } else{
+      await add_ap(location);
     }
     count += 1;
   }
 }
-
-async function add_db(location, data) {
-  const tagMac = data.tagMac;
-  const deviceClass = data.deviceClass;
-  const battery = data.battery || "-";
-
+async function add_ap(location) {
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
@@ -96,6 +97,11 @@ async function add_db(location, data) {
     );
     seenLocations.add(location); // Mark this location as seen
   }
+}
+async function add_db(data) {
+  const tagMac = data.tagMac;
+  const deviceClass = data.deviceClass;
+  const battery = data.battery || "-";
 
   // Always update the battery and deviceClass for the tag
   await Tags.findOneAndUpdate(
