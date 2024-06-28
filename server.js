@@ -36,13 +36,13 @@ wss.on('connection', function connection(ws) { // สร้าง connection
 
 async function add_ap(apName){
   // Check if location has already been processed
-  if (!seenLocations.has(location)) {
+  if (!seenLocations.has(apName)) {
     await AccessPoint.findOneAndUpdate(
       { apName: apName },
       { $setOnInsert: { apName: apName } },
       { upsert: true, new: true }
     );
-    seenLocations.add(location); // Mark this location as seen
+    seenLocations.add(apName); // Mark this location as seen
   }
 }
 
