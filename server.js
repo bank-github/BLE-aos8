@@ -34,59 +34,60 @@ wss.on('connection', function connection(ws) { // สร้าง connection
 });
 
 async function add_sensors(location, sensor) {
-  let count = 0;
   for (k of sensor) {
-    if (sensor[count]["deviceClass"].includes('iBeacon') == true && sensor[count]["deviceClass"].includes('arubaBeacon') == false && sensor[count]['rssi'] != null) {
+    if (k["deviceClass"].includes('iBeacon') == true && k["deviceClass"].includes('arubaBeacon') == false && k['rssi'] != null) {
       let data = {
-        tagMac: sensor[count]['mac'],
+        tagMac: k['mac'],
         deviceClass: 'iBeacon',
-        rssi: sensor[count]['rssi']['history'],
+        rssi: k['rssi']['history'],
         timeStamp: new Date().toISOString(),
-        major: sensor[count]["beacons"][0]['ibeacon']['major'],
-        minor: sensor[count]["beacons"][0]['ibeacon']['minor'],
+        major: k["beacons"][0]['ibeacon']['major'],
+        minor: k["beacons"][0]['ibeacon']['minor'],
         location: location
       };
-      await add_db(data);
-      await add_ap(location);
-    } else if (sensor[count]["deviceClass"] == 'arubaTag' && sensor[count]['rssi'] != null) {
+      await add_db(location, data);
+    } else if (k["deviceClass"] == 'arubaTag' && k['rssi'] != null) {
       let data = {
-        tagMac: sensor[count]['mac'],
+        tagMac: k['mac'],
         deviceClass: 'arubaTag',
-        rssi: sensor[count]['rssi']['history'],
+        rssi: k['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
-        battery: sensor[count]['sensors']['battery']
+        battery: k['sensors']['battery']
       };
-      await add_db(data);
-      await add_ap(location);
-    } else if (sensor[count]["deviceClass"] == 'eddystone' && sensor[count]['rssi'] != null) {
+      await add_db(location, data);
+    } else if (k["deviceClass"] == 'eddystone' && k['rssi'] != null) {
       let data = {
-        tagMac: sensor[count]['mac'],
+        tagMac: k['mac'],
         deviceClass: 'eddystone',
-        rssi: sensor[count]['rssi']['history'],
+        rssi: k['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
-        dynamicValue: sensor[count]['sensors']['temperatureC']
+        dynamicValue: k['sensors']['temperatureC']
       };
-      await add_db(data);
-      await add_ap(location);
-    } else if (sensor[count]["deviceClass"] == 'unclassified' && sensor[count]['rssi'] != null) {
+      await add_db(location, data);
+    } else if (k["deviceClass"] == 'unclassified' && k['rssi'] != null) {
       let data = {
-        tagMac: sensor[count]['mac'],
+        tagMac: k['mac'],
         deviceClass: 'unclassified',
-        rssi: sensor[count]['rssi']['history'],
+        rssi: k['rssi']['history'],
         timeStamp: new Date().toISOString(),
         location: location,
-        dynamicValue: sensor[count]['stats']['frame_cnt']
+        dynamicValue: k['stats']['frame_cnt']
       };
-      await add_db(data);
+      await add_db(location, data);
+    } else {
       await add_ap(location);
-    } else{
-      await add_ap(location);
+      await delay(50)
     }
-    count += 1;
   }
 }
+
+// สร้างฟังก์ชันหน่วงเวลา
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function add_ap(location) {
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
@@ -98,10 +99,20 @@ async function add_ap(location) {
     seenLocations.add(location); // Mark this location as seen
   }
 }
-async function add_db(data) {
+async function add_db(location, data) {
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
   const battery = data.battery || "-";
+
+  // Check if location has already been processed
+  if (!seenLocations.has(location)) {
+    await AccessPoint.findOneAndUpdate(
+      { location: location },
+      { $setOnInsert: { location: location } },
+      { upsert: true, new: true }
+    );
+    seenLocations.add(location); // Mark this location as seen
+  }
 
   // Always update the battery and deviceClass for the tag
   await Tags.findOneAndUpdate(
