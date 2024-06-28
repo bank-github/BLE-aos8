@@ -78,8 +78,8 @@ async function add_sensors(location, sensor) {
       };
       await add_db(data);
     } else {
-      // Delay here
-      await delay(150);
+      // Delay for 100 ms to add apName to db
+      await delay(100);
       await add_ap(location);
     }
     count += 1;
