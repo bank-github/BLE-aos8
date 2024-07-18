@@ -10,6 +10,7 @@ const accessPoint = new Schema({
 const tags = new Schema({
     tagMac:          {type: String, require: true},
     assetName:       {type: String, default: "unknown"},
+    assetType:       {type: String, default: "other"},
     deviceClass:     {type: String, require: true},
     description:     {type: String, default: "-"},
     battery:         {type: String, default: "-"}
