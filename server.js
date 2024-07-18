@@ -105,7 +105,7 @@ async function add_db(data) {
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
   const battery = data.battery || "-";
-  
+
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
@@ -113,6 +113,8 @@ async function add_db(data) {
       { $setOnInsert: { apName: location } },
       { upsert: true, new: true }
     );
+    // Delay for 100 ms to add apName to db
+    await delay(100);
     seenLocations.add(location); // Mark this location as seen
   }
 
