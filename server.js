@@ -105,7 +105,8 @@ async function add_db(data) {
   const tagMac = data.tagMac;
   const deviceClass = data.deviceClass;
   const battery = data.battery || "-";
-
+  
+  await delay(100);
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
