@@ -78,8 +78,6 @@ async function add_sensors(location, sensor) {
       };
       await add_db(data);
     } else {
-      // Delay for 100 ms to add apName to db
-      await delay(100);
       await add_ap(location);
     }
     count += 1;
@@ -90,13 +88,15 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function add_ap(location){
+async function add_ap(location) {
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
       { apName: location },
       { $setOnInsert: { apName: location } },
       { upsert: true, new: true }
     );
+    // Delay for 100 ms to add apName to db
+    await delay(100);
     seenLocations.add(location); // Mark this location as seen
   }
 }
@@ -106,7 +106,6 @@ async function add_db(data) {
   const deviceClass = data.deviceClass;
   const battery = data.battery || "-";
   
-  await delay(100);
   // Check if location has already been processed
   if (!seenLocations.has(location)) {
     await AccessPoint.findOneAndUpdate(
