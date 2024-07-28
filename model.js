@@ -21,7 +21,7 @@ const signalReport = new Schema({
     tagMac :         {type: String, require: true},
     location :       {type: String, require: true},
     deviceClass :    {type: String, require: true},
-    rssi :           {type: [{}], require: true},
+    rssi :           {type: Number, require: true},
     timeStamp :      {type: Date, require: true},
     major:           {type: String, default: null},
     minor:           {type: String, default: null},
